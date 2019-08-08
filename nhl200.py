@@ -306,7 +306,6 @@ def scrape_team(team):
 			f.write("{}\n".format(s))
 
 
-print TEAMS_LIST
 initialize_cache(TEAMS_LIST)
 
 rosters = []
