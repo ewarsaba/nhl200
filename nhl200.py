@@ -321,6 +321,6 @@ for team in TEAMS_LIST:
 	rosters.append([team, roster])
 
 
-for team, roster in sorted(rosters, key=lambda x: get_roster_score(x[1]), reverse=False):
+for team, roster in sorted(rosters, key=lambda x: get_roster_score(x[1]), reverse=True):
 	print_team(team, roster)
 	print ""
