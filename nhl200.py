@@ -24,9 +24,6 @@ TEAMS_LIST = ["ana", "ari", "bos", "buf", "cgy", "car", "chi", "col", "cbj",
 "dal", "det", "edm", "fla", "lak", "min", "mtl", "nsh", "njd", "nyi", "nyr",
 "ott", "phi", "pit", "sjs", "stl", "tbl", "tor", "van", "veg", "wsh", "wpg"]
 
-
-
-
 player_stats_cache = {}
 
 def get_player_score(p):
