@@ -29,6 +29,9 @@ player_stats_cache = {}
 def get_player_score(p):
 	return p[INDEX_POINTS] + p[INDEX_WINS]
 
+def get_player_score_label():
+	return "Points + Wins"
+
 def get_roster_score(roster):
 	return sum(get_player_score(player) for player in roster)
 
@@ -86,14 +89,12 @@ def select_team(forwards, defense, goalies):
 
 	return best_team
 
-def print_team(team_name, roster):
+def print_team(team_name, roster):	
 	team_score = 0
 	team_price = 0
-	team_points = 0
-	team_wins = 0
 
 	print team_name.upper()
-	print "{}\t{}\t{}\t{}\t{}\t{}".format("Position", "Name", "Cost", "Points", "Wins", "Score")
+	print "{}\t{}\t{}\t{}".format("Position", "Name", "Cost", get_player_score_label())
 
 	for player in roster:
 		score = get_player_score(player)
@@ -101,21 +102,16 @@ def print_team(team_name, roster):
 
 		team_score += score
 		team_price += price
-		team_wins += player[INDEX_WINS]
-		team_points += player[INDEX_POINTS]
-			
+
 		position = player[INDEX_POSITION]
 		if position not in [POSITION_GOALIE, POSITION_DEFENSEMAN]:
 			position = POSITION_FORWARD
 		
-		print "{}\t{}\t${}\t{:,}\t{:,}\t{:,}".format(position, player[INDEX_NAME], price, player[INDEX_POINTS], player[INDEX_WINS], score)
+		print "{}\t{}\t${}\t{:,}".format(position, player[INDEX_NAME], price, score)
 
 
 	print "Cost\t${}".format(team_price)
-	print "Points\t{:,}".format(team_points)
-	print "Wins\t{:,}".format(team_wins)
 	print "Score\t{:,}".format(team_score)
-
 
 def create_team(team_name):
 
@@ -313,6 +309,7 @@ def scrape_team(team):
 print TEAMS_LIST
 initialize_cache(TEAMS_LIST)
 
+rosters = []
 for team in TEAMS_LIST:
 
 	file = "data/{}.csv".format(team.lower())
@@ -320,5 +317,10 @@ for team in TEAMS_LIST:
 		scrape_team(team)
 
 	roster = create_team(team)
+
+	rosters.append([team, roster])
+
+
+for team, roster in sorted(rosters, key=lambda x: get_roster_score(x[1]), reverse=False):
 	print_team(team, roster)
 	print ""
