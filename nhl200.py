@@ -14,6 +14,11 @@ INDEX_ASSISTS = 6
 INDEX_POINTS = 7
 INDEX_POINTS_SHARE = 8
 INDEX_WINS = 9
+INDEX_TEAM_GOALS = 10
+INDEX_TEAM_ASSISTS = 11
+INDEX_TEAM_POINTS = 12
+INDEX_TEAM_WINS = 13
+
 
 POSITION_FORWARD = 'F'
 POSITIONS_FORWARD = ['C', 'LW', 'RW', 'F']
@@ -126,18 +131,25 @@ def create_team(team_name):
 
 		for line in f:
 			data = line.split(',')
-			name = data[0].strip()
-			player_url = data[1].strip()
-			position = data[2].strip()
-			price = int(data[3])
-			games = int(data[4])
-			goals = int(data[5])
-			assists = int(data[6])
-			points = int(data[7])
-			points_share = float(data[8])
-			wins = int(data[9])
+			name = data[INDEX_NAME].strip()
+			player_url = data[INDEX_PLAYER_URL].strip()
+			position = data[INDEX_POSITION].strip()
+			price = int(data[INDEX_PRICE])
+			games = int(data[INDEX_GAMES])
+			goals = int(data[INDEX_GOALS])
+			assists = int(data[INDEX_ASSISTS])
+			points = int(data[INDEX_POINTS])
+			points_share = float(data[INDEX_POINTS_SHARE])
+			wins = int(data[INDEX_WINS])
+			team_goals = int(data[INDEX_TEAM_GOALS])
+			team_assists = int(data[INDEX_TEAM_ASSISTS])
+			team_points = int(data[INDEX_TEAM_POINTS])
+			team_wins = int(data[INDEX_TEAM_WINS])
 
-			player = [name, player_url, position, price, games, goals, assists, points, points_share, wins]
+
+			player = [name, player_url, position, price, games, goals, 
+			assists, points, points_share, wins, team_goals, team_assists, 
+			team_points, team_wins]
 
 			if position == POSITION_DEFENSEMAN:
 				defense.append(player)
@@ -282,7 +294,7 @@ def scrape_team(team):
 
 	with open("data/{}.csv".format(team.lower()), 'w') as f:
 		
-		for row in (goalie_rows + skater_rows):
+		for index, row in enumerate(goalie_rows + skater_rows):
 			# these are divider rows, we don't care
 			if len(row) > 30:
 				continue
@@ -291,6 +303,17 @@ def scrape_team(team):
 			name = cells[0].get_text().encode('utf-8')
 			player_url = cells[0].next_element['href']
 			price = int(cells[4].get_text())
+
+			if index < len(goalie_rows):
+				team_wins = int(cells[6].get_text()) if cells[6].get_text() != '' else 0
+				team_goals = int(cells[21].get_text()) if cells[21].get_text() != '' else 0
+				team_assists = int(cells[22].get_text()) if cells[22].get_text() != '' else 0
+				team_points = int(cells[23].get_text()) if cells[23].get_text() != '' else 0
+			else:
+				team_wins = 0
+				team_goals = int(cells[5].get_text()) if cells[5].get_text() != '' else 0
+				team_assists = int(cells[6].get_text()) if cells[6].get_text() != '' else 0
+				team_points = int(cells[7].get_text()) if cells[7].get_text() != '' else 0
 
 			# maximum price for a player is $195
 			if price > 195:
@@ -302,7 +325,10 @@ def scrape_team(team):
 				# somethng went wrong
 				continue
 
-			s = "{},{},{},{},{},{},{},{},{},{}".format(name, player_url, career_stats["position"], price, career_stats["games"], career_stats["goals"], career_stats["assists"], career_stats["points"], career_stats["points_share"], career_stats["wins"])
+			s = "{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(name, player_url, 
+				career_stats["position"], price, career_stats["games"], career_stats["goals"], 
+				career_stats["assists"], career_stats["points"], career_stats["points_share"], 
+				career_stats["wins"], team_goals, team_assists, team_points, team_wins)
 			f.write("{}\n".format(s))
 
 
