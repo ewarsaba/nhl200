@@ -322,15 +322,3 @@ for team in TEAMS_LIST:
 	roster = create_team(team)
 	print_team(team, roster)
 	print ""
-
-
-''' 
-todo
-	goalie points
-	adding wins as separate stat
-	incomplete caching (temp file?)
-	better nested for loops
-	player class
-	team class
-	general cleanup
-'''
