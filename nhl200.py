@@ -108,7 +108,7 @@ def print_team(team_name, roster):
 		if position not in [POSITION_GOALIE, POSITION_DEFENSEMAN]:
 			position = POSITION_FORWARD
 		
-		print "{}\t{}\t${}\t{}\t{}\t{}".format(position, player[INDEX_NAME], price, player[INDEX_POINTS], player[INDEX_WINS], score)
+		print "{}\t{}\t${}\t{:,}\t{:,}\t{:,}".format(position, player[INDEX_NAME], price, player[INDEX_POINTS], player[INDEX_WINS], score)
 
 
 	print "Cost\t${}".format(team_price)
