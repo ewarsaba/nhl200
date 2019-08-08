@@ -211,10 +211,7 @@ def get_career_stats(player_url):
 	global player_stats_cache
 
 	if player_url in player_stats_cache:
-		print "cache hit\t{}".format(player_url)
 		return player_stats_cache[player_url]
-	else:
-		print "cache miss\t{}".format(player_url)
 	
 	url = "https://www.hockey-reference.com{}".format(player_url)
 	response = requests.get(url)
@@ -289,12 +286,14 @@ def get_rows(url):
 	return table.find_all('tr')
 
 def scrape_team(team):
-	goalie_rows = get_rows("https://www.hockey-reference.com/teams/{}/goalies.html".format(team.upper()))
 	skater_rows = get_rows("https://www.hockey-reference.com/teams/{}/skaters.html".format(team.upper()))
+	goalie_rows = get_rows("https://www.hockey-reference.com/teams/{}/goalies.html".format(team.upper()))
+
+	players_seen = set()
 
 	with open("data/{}.csv".format(team.lower()), 'w') as f:
 		
-		for index, row in enumerate(goalie_rows + skater_rows):
+		for index, row in enumerate(skater_rows + goalie_rows):
 			# these are divider rows, we don't care
 			if len(row) > 30:
 				continue
@@ -304,7 +303,17 @@ def scrape_team(team):
 			player_url = cells[0].next_element['href']
 			price = int(cells[4].get_text())
 
-			if index < len(goalie_rows):
+			if player_url in players_seen:
+				print "SEEN\t{}\t{}\t{}".format(team, name, player_url)
+				continue
+
+			players_seen.add(player_url)
+
+			# maximum price for a player is $195
+			if price > 195:
+				continue
+
+			if index >= len(skater_rows):
 				team_wins = int(cells[6].get_text()) if cells[6].get_text() != '' else 0
 				team_goals = int(cells[21].get_text()) if cells[21].get_text() != '' else 0
 				team_assists = int(cells[22].get_text()) if cells[22].get_text() != '' else 0
@@ -314,10 +323,6 @@ def scrape_team(team):
 				team_goals = int(cells[5].get_text()) if cells[5].get_text() != '' else 0
 				team_assists = int(cells[6].get_text()) if cells[6].get_text() != '' else 0
 				team_points = int(cells[7].get_text()) if cells[7].get_text() != '' else 0
-
-			# maximum price for a player is $195
-			if price > 195:
-				continue
 
 			career_stats = get_career_stats(player_url)
 
@@ -329,6 +334,7 @@ def scrape_team(team):
 				career_stats["position"], price, career_stats["games"], career_stats["goals"], 
 				career_stats["assists"], career_stats["points"], career_stats["points_share"], 
 				career_stats["wins"], team_goals, team_assists, team_points, team_wins)
+
 			f.write("{}\n".format(s))
 
 
@@ -336,7 +342,6 @@ initialize_cache(TEAMS_LIST)
 
 rosters = []
 for team in TEAMS_LIST:
-
 	file = "data/{}.csv".format(team.lower())
 	if not os.path.isfile(file):
 		scrape_team(team)
