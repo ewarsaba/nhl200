@@ -49,15 +49,22 @@ def filter_players(players, num):
 	for i in range(0, len(players)):
 		num_better = 0
 		p1 = players[i]
+		p1_score = get_player_score(p1)
+
 		for j in range(0, len(players)):
 			if i == j:
 				continue
 
 			p2 = players[j]
+			p2_score = get_player_score(p2)
 
-			if p1[INDEX_PRICE] >= p2[INDEX_PRICE] and get_player_score(p1) <= get_player_score(p2):
+			if p1_score == 0 and p2_score > 0:
 				num_better += 1
-
+			elif p1_score == 0 and p2_score == 0 and p1[INDEX_PRICE] > p2[INDEX_PRICE]:
+				num_better += 1
+			elif p1[INDEX_PRICE] >= p2[INDEX_PRICE] and p1_score < p2_score:
+				num_better += 1
+				p1[INDEX_PRICE] >= p2[INDEX_PRICE]
 			if num_better >= num:
 				break
 
@@ -131,7 +138,7 @@ def create_team(team_name):
 
 		for line in f:
 			data = line.split(',')
-			name = data[INDEX_NAME].strip()
+			name = data[INDEX_NAME].strip().replace("*", "")
 			player_url = data[INDEX_PLAYER_URL].strip()
 			position = data[INDEX_POSITION].strip()
 			price = int(data[INDEX_PRICE])
@@ -145,7 +152,6 @@ def create_team(team_name):
 			team_assists = int(data[INDEX_TEAM_ASSISTS])
 			team_points = int(data[INDEX_TEAM_POINTS])
 			team_wins = int(data[INDEX_TEAM_WINS])
-
 
 			player = [name, player_url, position, price, games, goals, 
 			assists, points, points_share, wins, team_goals, team_assists, 
@@ -348,7 +354,8 @@ for team in TEAMS_LIST:
 
 	roster = create_team(team)
 
-	rosters.append([team, roster])
+	if roster is not None:
+		rosters.append([team, roster])
 
 
 for team, roster in sorted(rosters, key=lambda x: get_roster_score(x[1]), reverse=True):
